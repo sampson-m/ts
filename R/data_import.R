@@ -19,7 +19,9 @@ import_crime <- function() {
     filter(DATE < '2023-11-01') %>%
     ungroup() %>%
     select(DATE, n) %>%
-    mutate(DATE = as.Date(DATE))
+    mutate(DATE = as.Date(DATE),
+           lag11_crime = lag(x=n, n=11)) %>%
+    filter(DATE > '2011-12-01')
   
   return(counts)
   
@@ -59,5 +61,6 @@ full_df = import_data()
 crime_ts = ts(data = full_df$n, start = c(2012, 1), frequency = 12)
 housing_ts = ts(data = full_df$WASH911BPPRIV, start = c(2012, 1), frequency = 12)
 unemp_ts = ts(data = full_df$DCURN, start = c(2012, 1), frequency = 12)
+lag11_crime_ts = ts(data=full_df$lag11_crime, start = c(2012, 1), frequency = 12)
 
-#write.csv(x = full_df, file = 'data_processed/processed_data.csv', row.names = F)
+write.csv(x = full_df, file = 'data_processed/processed_data.csv', row.names = F)
