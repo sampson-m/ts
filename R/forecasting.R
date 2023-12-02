@@ -1,4 +1,6 @@
 library(forecast)
+library(tidyr)
+library(dplyr)
 #source('R/data_import.R')
 source('R/model_ts_NEW.R')
 
@@ -8,7 +10,7 @@ source('R/model_ts_NEW.R')
 # Split the data into training and testing sets
 Train_Test_Split <- function(tsObject) {
   n <- length(tsObject)
-  train_size <- floor(0.90 * n)
+  train_size <- floor(0.90 * n)   #IF THIS IS CHANGED TO 0.8 MODELS PERFORM BETTER
   train_data <- head(tsObject, train_size)
   test_data <- tail(tsObject, n - train_size)
   return(list(train_data = train_data, test_data = test_data))
@@ -17,7 +19,6 @@ Train_Test_Split <- function(tsObject) {
 ##################################
 ### Forecast for crime_ts WITHOUT predictors 
 
-##############
 ### ARIMA
 crime_data = Train_Test_Split(crime_ts)
 train_data = crime_data$train_data
@@ -31,18 +32,18 @@ forecast_result <- forecast(m8_train_data, h = length(test_data))
 plot(forecast_result, main = "M8 ARIMA Forecast for Crime. In-Sample")
 lines(test_data, col = "black", lty = 2)  # Add the test set to the plot with a dashed line
 legend("topright", legend = c("Forecast", "Test Set"), col = c("blue", "black"), lty = c(1, 2))
-# Evaluate the model (optional). First row is based on training data, second row is based on test data
-accuracy(forecast_result, test_data)
+# Evaluate the model. First row is based on training data, second row is based on test data
+m8_90_accuracy = accuracy(forecast_result, test_data)
 
-# Model selection using auto.arima (information criterion default is AIC)
-auto_m = auto.arima(train_data, ic = "bic")   #Dont use autoarima, use the explicit models found on model_ts_NEW
+# Model selection using auto.arima
+auto_m = auto.arima(train_data, ic = "bic")   #Maybe dont use autoarima, use the explicit models found on model_ts_NEW.
 forecast_result2 <- forecast(auto_m, h = length(test_data))
 
 plot(forecast_result2, main = "Auto-ARIMA Forecast for Crime. In-Sample")
 lines(test_data, col = "black", lty = 2)  # Add the test set to the plot with a dashed line
 legend("topright", legend = c("Forecast", "Test Set"), col = c("blue", "black"), lty = c(1, 2))
-# Evaluate the model (optional). First row is based on training data, second row is based on test data
-accuracy(forecast_result2, test_data)
+# Evaluate the model
+auto_arima90_accuracy = accuracy(forecast_result2, test_data)
 
 
 ##############
@@ -52,8 +53,7 @@ hw_train_p<-predict(hw_train,n.ahead=length(test_data), prediction.interval = TR
 plot(hw_train, hw_train_p, main='H-W multiplicative Forecast for Crime. In-Sample')
 lines(test_data, col = "black", lty = 2)  # Add the test set to the plot with a dashed line
 legend("bottomleft", legend = c("Forecast", "Test Set", "95% CI"), col = c("red", "black",'lightblue'), lty = c(1, 2))
-accuracy(hw_train_p, test_data)
-
+hw_90_accuracy = accuracy(hw_train_p, test_data)
 
 ##################################
 ### Forecast for crime_ts WTIH predictors
@@ -79,18 +79,37 @@ plot(forecast_result3, main = "R5 ARIMA for Crime with predictors. In Sample")
 lines(test_data, col = "black", lty = 2)  # Add the test set to the plot with a dashed line
 legend("bottomleft", legend = c("Forecast", "Test Set"), col = c("blue", "black"), lty = c(1, 2))
 # Evaluate the model (optional). First row is based on training data, second row is based on test data
-accuracy(forecast_result3, test_data)
+r5_90_accuracy = accuracy(forecast_result3, test_data)
+
+#Model accuracy
+m8_90_accuracy
+auto_arima90_accuracy
+hw_90_accuracy
+r5_90_accuracy
+
+# Create a results table
+models <- c("M8 90% of data", "Auto Arima 90% of data", "R5 90% of data")
+metrics <- c("ME", "RMSE", "MAE", "MPE", "MAPE", "MASE", "ACF1", "Theil's U")
+
+df <- data.frame(Model = rep(models, each = length(metrics)),
+                 Metric = rep(metrics, length(models)),
+                 Value = c(m8_90_accuracy[2,], auto_arima90_accuracy[2,], r5_90_accuracy[2,]))
+# Pivot the data
+results_table <- df %>%
+  pivot_wider(names_from = Metric, values_from = Value)
+
+# Performance table for test set
+print(results_table)
 
 
-#######
-### Out of sample predictions
+########
+### Out of sample predictions using the models trained in model_ts_NEW.R
 
 year_forecast = forecast(m8, h = 12)
 plot(year_forecast, main = "M8 ARIMA Forecast for Crime. Out-of-Sample (1yr)")
 
 hw_p<-predict(hw2,n.ahead=12, prediction.interval = TRUE, level=.95)
 plot(hw2, hw_p, main='H-W multiplicative Forecast for Crime. Out-of-Sample (1yr)')
-
 
 #Estimate predictors using HW and then forecast
 housing_hw<-HoltWinters(housing_ts,seasonal='mult')
