@@ -1,5 +1,10 @@
 library(ggplot2)
 source('R/data_import.R')
+source('R/functions.R')
+
+plot_acf()
+plot_pacf()
+plot_ccf()
 
 response_plot = ggplot(full_df, aes(x=DATE, y=n)) +
   geom_line() +theme_bw() +
@@ -19,32 +24,18 @@ housing_plot = ggplot(full_df, aes(x=DATE, y=WASH911BPPRIV)) +
   ggtitle('New Private Housing Units')
 ggsave('plots/housing_plot.pdf', plot=housing_plot)
 
-plot(decompose(crime_ts, type = 'addit'))
+housing_plot = ggplot(full_df, aes(x=DATE, y=lag11_crime)) +
+  geom_line() +theme_bw() +
+  labs(x='Time',y='Lag 11 Crime in DC') +
+  ggtitle('Lag 11 Number of Crimes in DC by Month')
+ggsave('plots/lag11_crime.pdf', plot=housing_plot)
+
+pdf('plots/decomposition.pdf')
 plot(decompose(crime_ts, type='mult'))
-
-pdf('plots/acf_plots.pdf')
-par(mfrow=c(2,2))
-acf(crime_ts, main='DC Crime ACF')
-acf(housing_ts, main = 'DC Private Housing ACF')
-acf(unemp_ts, main = 'DC Unemployment ACF')
-dev.off()
-
-pdf('plots/pacf_plots.pdf')
-par(mfrow=c(2,2))
-pacf(crime_ts, main = 'DC Crime PACF')
-pacf(housing_ts, main = 'DC Private Housing PACF')
-pacf(unemp_ts, main = 'DC Unemployment PACF')
-dev.off()
-
-pdf('plots/ccf_plots.pdf')
-par(mfrow=c(1,2))
-ccf(housing_ts, crime_ts, type='correlation', main = 'Housing, Crime CCF')
-ccf(unemp_ts, crime_ts, type='correlation', main = 'Unemployment, Crime CCF')
 dev.off()
 
 pdf('plots/scatterplot.pdf')
-pairs(full_df[,2:4] %>% rename(Crime = n, Unemp = DCURN, Housing = WASH911BPPRIV),
-      main='Scatterplot Between Response and Predictors')
+pairs(full_df[,2:5] %>% rename(Crime = n, Unemp = DCURN, Housing = WASH911BPPRIV, Lag_Crime = lag11_crime))
 dev.off()
 
 
