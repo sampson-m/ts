@@ -9,7 +9,7 @@ source('R/model_ts_NEW.R')
 # Split the data into training and testing sets
 Train_Test_Split <- function(tsObject) {
   n <- length(tsObject)
-  train_size <- floor(0.90 * n)   #IF THIS IS CHANGED TO 0.8 MODELS PERFORM BETTER
+  train_size <- floor(0.80 * n)   #IF THIS IS CHANGED TO 0.8 MODELS PERFORM BETTER
   train_data <- head(tsObject, train_size)
   test_data <- tail(tsObject, n - train_size)
   return(list(train_data = train_data, test_data = test_data))
@@ -87,20 +87,20 @@ print(results_table)
 # Set up a 2x2 layout for subplots
 par(mfrow = c(2, 2))
 # Plot the first subplot
-plot(forecast_result, main = "M8 ARIMA Forecast for Crime. In-Sample")
+plot(forecast_result, main = "ARIMA without preds. In-Sample")
 lines(test_data, col = "black", lty = 2)  # Add the test set to the plot with a dashed line
 legend("bottomleft", legend = c("Forecast", "Test Set"), col = c("blue", "black"), 
        lty = c(1, 2),cex = 0.7)  
 # Plot the second subplot
-plot(forecast_result2, main = "Auto-ARIMA Forecast for Crime. In-Sample")
+plot(forecast_result2, main = "Auto-ARIMA without preds. In-Sample")
 lines(test_data, col = "black", lty = 2)  # Add the test set to the plot with a dashed line
 legend("bottomleft", legend = c("Forecast", "Test Set"), col = c("blue", "black"), lty = c(1, 2),cex = 0.7)  
 # Plot the third subplot
-plot(hw_train, hw_train_p, main='H-W multiplicative Forecast for Crime. In-Sample')
+plot(hw_train, hw_train_p, main='H-W multiplicative. In-Sample')
 lines(test_data, col = "black", lty = 2)  # Add the test set to the plot with a dashed line
 legend("bottomleft", legend = c("Forecast", "Test Set"), col = c("red", "black"), lty = c(1, 2),cex = 0.7)  
 # Plot the fourth subplot
-plot(forecast_result3, main = "R5 ARIMA for Crime with predictors. In-Sample")
+plot(forecast_result3, main = "ARIMA with preds.In-Sample")
 lines(test_data, col = "black", lty = 2)  # Add the test set to the plot with a dashed line
 legend("bottomleft", legend = c("Forecast", "Test Set"), col = c("blue", "black"), lty = c(1, 2),cex = 0.7)  
 # Reset the layout to the default (1x1)
@@ -131,13 +131,13 @@ forecast_r5 <- forecast(r5, h = 12,xreg = cbind(housing_pred, unem_pred, lag11_c
 par(mfrow = c(2, 2))
 
 # Plot the first subplot
-plot(year_forecast, main = "M8 ARIMA Forecast for Crime. OoS (1yr)")
+plot(year_forecast, main = "ARIMA without preds.Out-of-Sample (1yr)")
 
 # Plot the second subplot
-plot(hw2, hw_p, main='H-W mult Forecast for Crime. OoS (1yr)')
+plot(hw2, hw_p, main='H-W mult. Out-of-Sample (1yr)')
 
 # Plot the third subplot
-plot(forecast_r5, main = "R5 forecast for Crime with preds. OoS (1yr)") 
+plot(forecast_r5, main = "Arima with preds. Out-of-Sample (1yr)") 
 
 # Plot the fourth subplot 
 
