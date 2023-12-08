@@ -8,26 +8,22 @@ plot_ccf()
 
 response_plot = ggplot(full_df, aes(x=DATE, y=n)) +
   geom_line() +theme_bw() +
-  labs(x='Time',y='Number of Crimes') +
-  ggtitle('Number of Crimes in DC by Month')
+  labs(x='Time',y='Number of Crimes') 
 ggsave('plots/response_plot.pdf', plot=response_plot)
 
 unemp_plot = ggplot(full_df, aes(x=DATE, y=DCURN)) +
   geom_line() +theme_bw() +
-  labs(x='Time',y='Percent Unemployment') +
-  ggtitle('Percent Unemployment in DC by Month')
+  labs(x='Time',y='Percent Unemployment') 
 ggsave('plots/unemp_plot.pdf', plot=unemp_plot)
 
 housing_plot = ggplot(full_df, aes(x=DATE, y=WASH911BPPRIV)) +
   geom_line() +theme_bw() +
-  labs(x='Time',y='Private Housing Permits in DC') +
-  ggtitle('New Private Housing Units')
+  labs(x='Time',y='Private Housing Permits in DC')
 ggsave('plots/housing_plot.pdf', plot=housing_plot)
 
 housing_plot = ggplot(full_df, aes(x=DATE, y=lag11_crime)) +
   geom_line() +theme_bw() +
-  labs(x='Time',y='Lag 11 Crime in DC') +
-  ggtitle('Lag 11 Number of Crimes in DC by Month')
+  labs(x='Time',y='Lag 11 Crime in DC') 
 ggsave('plots/lag11_crime.pdf', plot=housing_plot)
 
 pdf('plots/decomposition.pdf')

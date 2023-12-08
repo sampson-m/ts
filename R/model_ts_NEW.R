@@ -163,7 +163,15 @@ hw2 = HoltWinters(crime_ts, seasonal = "multiplicative")
 hw1$SSE
 hw2$SSE # lower SSE value so go with multiplicative
 
+### NNAR
+
+nnfit1 = nnetar(crime_ts)
+nnfit2 = nnetar(crime_ts, xreg = cbind(housing_ts, unemp_ts, lag11_crime_ts))
+nnfit1
+nnfit2
+
 # Compare performance of model with predictors to model without predictors
+
 performance[4,c(1,2)] = c(AIC(r5), BIC(r5))
 performance = performance[c(3,4),]
 performance$sigma2 = c(m8$sigma2, r5$sigma2)
